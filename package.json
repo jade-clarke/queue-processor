@@ -1,0 +1,29 @@
+{
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "workspaces": ["packages/*", "services/*"],
+  "scripts": {
+    "build:all": "pnpm -w --filter @svc/* build",
+    "build:cleaner": "pnpm -w --filter @svc/cleaner build",
+    "build:reaper": "pnpm -w --filter @svc/reaper build",
+    "build:worker": "pnpm -w --filter @svc/worker build",
+    "lint": "eslint --ext .ts --ext .js .",
+    "typecheck": "tsc -p tsconfig.base.json --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "rollup": "^4.21.0",
+    "rollup-plugin-esbuild": "^6.1.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-commonjs": "^25.0.8",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-alias": "^5.1.0",
+    "typescript": "^5.6.2",
+    "eslint": "^9.33.0",
+    "@typescript-eslint/parser": "^8.39.1",
+    "@typescript-eslint/eslint-plugin": "^8.39.1"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "@svc/reaper",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "rollup -c",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@types": "workspace:*",
+    "@utils": "workspace:*"
+  }
+}

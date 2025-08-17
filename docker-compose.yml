@@ -1,0 +1,66 @@
+# docker-compose.yml
+
+# common configuration for all worker services
+x-worker-common: &worker-common
+  build:
+    context: .
+    dockerfile: Dockerfile
+  environment:
+    - NODE_OPTIONS=--enable-source-maps
+    - KV_HOST=valkey
+    - KV_PORT=6379
+    - QUEUE_MAIN=q:main
+    - QUEUE_PROCESSING=q:processing
+    - QUEUE_COMPLETED=q:completed
+    - QUEUE_ERROR=q:error
+  restart: unless-stopped
+  depends_on:
+    - valkey
+
+services:
+
+# Backend services
+
+  valkey:
+    image: valkey/valkey:latest
+    command: ["valkey-server", "--appendonly", "yes"]
+    ports: ["6379:6379"]
+
+
+# Worker services
+
+  cleaner:
+    <<: *worker-common
+    build:
+      args:
+        NODE_ENV: development
+        TARGET_SVC: cleaner
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      - MAX_PRESERVED_JOBS=1000
+      - EXPIRED_AFTER_MS=3600000
+      - SCAN_INTERVAL_MS=60000
+
+
+  reaper:
+    <<: *worker-common
+    build:
+      args:
+        NODE_ENV: development
+        TARGET_SVC: reaper
+    deploy:
+      mode: replicated
+      replicas: 1
+
+
+  worker:
+    <<: *worker-common
+    build:
+      args:
+        NODE_ENV: development
+        TARGET_SVC: worker
+    deploy:
+      mode: replicated
+      replicas: 5
