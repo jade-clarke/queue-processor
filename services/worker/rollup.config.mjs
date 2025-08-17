@@ -17,24 +17,27 @@ export default /** @type {import('rollup').RollupOptions} */ ({
     file: "dist/index.js",
     format: "esm",
     sourcemap: true,
-    inlineDynamicImports: true
+    inlineDynamicImports: true,
   },
   external: (id) => builtinModules.includes(id) || id.startsWith("node:"),
   treeshake: {
     moduleSideEffects: false,
     propertyReadSideEffects: false,
-    tryCatchDeoptimization: false
+    tryCatchDeoptimization: false,
   },
   plugins: [
     alias({
       entries: [
-        { find: "@utils", replacement: path.join(repoRoot, "packages/utils/src") }
-      ]
+        {
+          find: "@utils",
+          replacement: path.join(repoRoot, "packages/utils/src"),
+        },
+      ],
     }),
     resolve({
       exportConditions: ["node", "import"],
       preferBuiltins: true,
-      extensions: [".ts", ".tsx", ".mjs", ".js", ".json"]
+      extensions: [".ts", ".tsx", ".mjs", ".js", ".json"],
     }),
     commonjs(),
     json(),
@@ -43,7 +46,17 @@ export default /** @type {import('rollup').RollupOptions} */ ({
       tsconfig: path.join(repoRoot, "tsconfig.base.json"),
       minify: true,
       sourcemap: true,
-      legalComments: "none"
-    })
-  ]
+      legalComments: "none",
+    }),
+  ],
+  onwarn(warning, warn) {
+    if (
+      warning.code === "CIRCULAR_DEPENDENCY" &&
+      /iovalkey/.test(
+        String(warning.importer || "") + String(warning.ids || "")
+      )
+    )
+      return;
+    warn(warning);
+  },
 });
